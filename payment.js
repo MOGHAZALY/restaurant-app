@@ -8,7 +8,7 @@ const express = require('express');
 const router = express.Router();
 const fetch = require('node-fetch');
 const crypto = require('crypto');
-const db = require('../db');
+const db = require('./db');
 
 const PAYMOB_API_KEY = process.env.PAYMOB_API_KEY;
 const PAYMOB_INTEGRATION_ID = process.env.PAYMOB_INTEGRATION_ID; // integration id بتاع طريقة الدفع (كارت مثلاً)
