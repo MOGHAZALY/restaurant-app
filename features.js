@@ -1,7 +1,9 @@
-// routes/features.js — زرار الخدمة (Service Bell) + قائمة الانتظار (Waitlist / Pre-ordering)
+// features.js — زرار الخدمة (Service Bell) + قائمة الانتظار (Waitlist / Pre-ordering)
 const express = require('express');
 const router = express.Router();
-const db = require('../db');
+
+// التعديل: استخدام ./db بدلاً من ../db
+const db = require('./db');
 
 /* ---------------- Virtual Service Bell ---------------- */
 
@@ -47,7 +49,6 @@ router.post('/waitlist', (req, res) => {
 
   res.json({
     waitlist_id: result.lastInsertRowid,
-    // العميل يفتح اللينك ده وهو مستني، ويختار أكله قبل ما يقعد
     preorder_link: `/menu.html?waitlist=${result.lastInsertRowid}`,
   });
 });
@@ -58,7 +59,7 @@ router.get('/waitlist', (req, res) => {
   res.json(list);
 });
 
-// لما العميل يقعد على ترابيزة — بيربط طلبه اللي عمله وهو مستني بالترابيزة، ويتبعت المطبخ فورًا
+// لما العميل يقعد على ترابيزة
 router.patch('/waitlist/:id/seat', (req, res) => {
   const { table_number } = req.body;
   if (!table_number) return res.status(400).json({ error: 'رقم الترابيزة مطلوب' });
