@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>شاشة المطبخ</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>👨‍🍳 شاشة المطبخ</h1>
+</header>
+
+<div class="orders-board" id="orders-board"></div>
+
+<script>
+const API = 'http://localhost:3000/api';
+
+const statusLabels = {
+  pending: 'جديد',
+  preparing: 'جاري التحضير',
+  ready: 'جاهز',
+};
+
+const nextAction = {
+  pending: { label: 'ابدأ التحضير', status: 'preparing', cls: 'btn-preparing' },
+  preparing: { label: 'جاهز', status: 'ready', cls: 'btn-ready' },
+  ready: { label: 'تم التسليم', status: 'served', cls: 'btn-served' },
+};
+
+async function loadOrders() {
+  const res = await fetch(`${API}/orders`);
+  const orders = await res.json();
+  render(orders);
+}
+
+function render(orders) {
+  const board = document.getElementById('orders-board');
+  board.innerHTML = '';
+
+  if (orders.length === 0) {
+    board.innerHTML = '<p style="padding:20px;">مفيش طلبات دلوقتي 🎉</p>';
+    return;
+  }
+
+  orders.forEach(order => {
+    const card = document.createElement('div');
+    card.className = `order-card ${order.status}`;
+
+    const itemsHtml = order.items.map(it => `<li>${it.item_name} × ${it.quantity}</li>`).join('');
+    const action = nextAction[order.status];
+    const ratingBadge = order.rating === 1 ? '<p style="color:red; font-weight:bold;">⚠️ العميل مش راضي!</p>' : '';
+
+    card.innerHTML = `
+      <h3>طلب #${order.order_number}</h3>
+      <div class="table">ترابيزة ${order.table_number} — ${statusLabels[order.status]}</div>
+      <ul>${itemsHtml}</ul>
+      ${order.notes ? `<p><em>${order.notes}</em></p>` : ''}
+      ${ratingBadge}
+      <div class="status-actions">
+        ${action ? `<button class="${action.cls}" onclick="updateStatus(${order.id}, '${action.status}')">${action.label}</button>` : ''}
+      </div>
+    `;
+    board.appendChild(card);
+  });
+}
+
+async function updateStatus(orderId, status) {
+  await fetch(`${API}/orders/${orderId}/status`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status }),
+  });
+  loadOrders();
+}
+
+loadOrders();
+setInterval(loadOrders, 5000); // تحديث تلقائي كل 5 ثواني
+</script>
+</body>
+</html>

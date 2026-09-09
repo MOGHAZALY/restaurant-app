@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الاستقبال</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header><h1>📋 تسجيل قائمة الانتظار</h1></header>
+
+<div style="padding:20px; max-width:400px; margin:auto;">
+  <input id="name-input" type="text" placeholder="اسم العميل" style="width:100%; padding:12px; margin-bottom:10px; border-radius:8px; border:1px solid #ccc;">
+  <input id="size-input" type="number" placeholder="عدد الأفراد" value="2" style="width:100%; padding:12px; margin-bottom:10px; border-radius:8px; border:1px solid #ccc;">
+  <button onclick="addToWaitlist()" class="confirm-btn">إضافة وإرسال لينك المنيو على واتساب</button>
+  <div id="result" style="margin-top:16px;"></div>
+</div>
+
+<script>
+const API = 'http://localhost:3000/api';
+
+async function addToWaitlist() {
+  const name = document.getElementById('name-input').value;
+  const size = document.getElementById('size-input').value;
+  if (!name) return alert('اكتب الاسم');
+
+  const res = await fetch(`${API}/features/waitlist`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ customer_name: name, party_size: size }),
+  });
+  const data = await res.json();
+
+  const fullLink = `${window.location.origin}${data.preorder_link}`;
+  document.getElementById('result').innerHTML = `
+    <p>تم التسجيل ✅ — ابعت اللينك ده للعميل على واتساب عشان يطلب وهو مستني:</p>
+    <a href="https://wa.me/?text=${encodeURIComponent('اطلب أكلك وأنت مستني: ' + fullLink)}" target="_blank" class="confirm-btn" style="display:block; text-align:center; text-decoration:none;">ابعت على واتساب 📲</a>
+  `;
+}
+</script>
+</body>
+</html>

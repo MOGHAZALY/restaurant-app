@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>المينو</title>
+<link rel="stylesheet" href="style.css">
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+</head>
+<body>
+
+<header>
+  <h1>🍽️ المينو</h1>
+  <p id="table-label">ترابيزة رقم: --</p>
+  <button onclick="startGroupOrder()" style="margin-top:8px; background:#fff; color:#b5442e; border:none; border-radius:8px; padding:6px 14px; font-weight:bold; cursor:pointer;">👥 اطلب مع صحابك</button>
+</header>
+
+<div id="menu-container"></div>
+
+<div class="cart-bar hidden" id="cart-bar" onclick="openCart()">
+  <span id="cart-count">0 صنف</span>
+  <span id="cart-total">0 ج.م</span>
+</div>
+
+<!-- سلة الطلب -->
+<div class="overlay hidden" id="cart-overlay">
+  <div class="sheet">
+    <button class="close-btn" onclick="closeCart()">×</button>
+    <h2>طلبك</h2>
+    <div id="cart-lines"></div>
+
+    <div class="pay-options">
+      <button id="pay-online-btn" onclick="selectPayment('online')">دفع أونلاين</button>
+      <button id="pay-counter-btn" onclick="selectPayment('counter')">دفع عند الكاشير</button>
+    </div>
+
+    <button class="confirm-btn" onclick="submitOrder()">تأكيد الطلب</button>
+  </div>
+</div>
+
+<!-- حالة الطلب بعد التأكيد -->
+<div class="overlay hidden" id="status-overlay">
+  <div class="sheet order-status-box">
+    <p>تم استلام طلبك، رقم طلبك هو</p>
+    <div class="number" id="order-number-display">--</div>
+    <div class="status-badge" id="order-status-display">قيد الانتظار</div>
+    <p style="margin-top:20px; font-size:13px; color:#777;">الصفحة بتتحدث لوحدها لحد ما الطلب يجهز</p>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

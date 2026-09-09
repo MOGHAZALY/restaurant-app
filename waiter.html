@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>شاشة الويتر</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>🛎️ شاشة الويتر</h1>
+</header>
+
+<div class="category-title">طلبات الخدمة</div>
+<div class="orders-board" id="service-board"></div>
+
+<div class="category-title">قائمة الانتظار</div>
+<div class="orders-board" id="waitlist-board"></div>
+
+<script>
+const API = 'http://localhost:3000/api';
+
+const typeLabels = { bill: '🧾 عايز الشيك', water: '💧 عايز مية', utensils: '🍴 عايز أدوات', other: '🙋 محتاج حاجة' };
+
+async function loadServiceRequests() {
+  const res = await fetch(`${API}/features/service-request`);
+  const requests = await res.json();
+  const board = document.getElementById('service-board');
+  board.innerHTML = requests.length === 0 ? '<p style="padding:16px;">مفيش طلبات دلوقتي</p>' : '';
+
+  requests.forEach(r => {
+    const card = document.createElement('div');
+    card.className = 'order-card pending';
+    card.innerHTML = `
+      <h3>${typeLabels[r.request_type] || r.request_type}</h3>
+      <div class="table">ترابيزة ${r.table_number}</div>
+      <div class="status-actions">
+        <button class="btn-served" onclick="markDone(${r.id})">تم ✅</button>
+      </div>
+    `;
+    board.appendChild(card);
+  });
+}
+
+async function markDone(id) {
+  await fetch(`${API}/features/service-request/${id}/done`, { method: 'PATCH' });
+  loadServiceRequests();
+}
+
+async function loadWaitlist() {
+  const res = await fetch(`${API}/features/waitlist`);
+  const list = await res.json();
+  const board = document.getElementById('waitlist-board');
+  board.innerHTML = list.length === 0 ? '<p style="padding:16px;">مفيش حد مستني دلوقتي</p>' : '';
+
+  list.forEach(w => {
+    const card = document.createElement('div');
+    card.className = 'order-card pending';
+    card.innerHTML = `
+      <h3>${w.customer_name}</h3>
+      <div class="table">${w.party_size} أفراد</div>
+      <div class="status-actions">
+        <input type="text" placeholder="رقم الترابيزة" id="table-input-${w.id}" style="flex:1; padding:8px; border-radius:8px; border:1px solid #ccc;">
+        <button class="btn-preparing" onclick="seat(${w.id})">قعّده</button>
+      </div>
+    `;
+    board.appendChild(card);
+  });
+}
+
+async function seat(id) {
+  const table = document.getElementById(`table-input-${id}`).value;
+  if (!table) return alert('اكتب رقم الترابيزة');
+  await fetch(`${API}/features/waitlist/${id}/seat`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ table_number: table }),
+  });
+  loadWaitlist();
+}
+
+function refreshAll() {
+  loadServiceRequests();
+  loadWaitlist();
+}
+
+refreshAll();
+setInterval(refreshAll, 5000);
+</script>
+</body>
+</html>
