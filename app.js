@@ -1,5 +1,5 @@
 // app.js — منطق صفحة المينو الخاصة بالعميل
-const API = 'http://localhost:3000/api'; // غيّرها لدومين السيرفر الحقيقي بعد الرفع
+const API = window.location.origin + '/api'; // يربط تلقائياً بسيرفر Vercel المرفوع
 
 const params = new URLSearchParams(window.location.search);
 const TABLE_NUMBER = params.get('table') || 'غير محدد';
