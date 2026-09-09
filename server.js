@@ -3,10 +3,11 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
-const menuRoutes = require('./routes/menu');
-const orderRoutes = require('./routes/orders');
-const paymentRoutes = require('./routes/payment');
-const featuresRoutes = require('./routes/features');
+// التعديل: استدعاء الملفات من المجلد الرئيسي مباشرة
+const menuRoutes = require('./menu');
+const orderRoutes = require('./orders');
+const paymentRoutes = require('./payment');
+const featuresRoutes = require('./features');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,6 +22,12 @@ app.use('/api/features', featuresRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
-app.listen(PORT, () => {
-  console.log(`✅ السيرفر شغال على http://localhost:${PORT}`);
-});
+// تشغيل السيرفر محلياً
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`✅ السيرفر شغال على http://localhost:${PORT}`);
+  });
+}
+
+// تصدير التطبيق لتشغيله على Vercel
+module.exports = app;
