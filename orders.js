@@ -1,7 +1,9 @@
-// routes/orders.js — إنشاء الطلبات، عرضها للمطبخ، تحديث الحالة
+// orders.js — إنشاء الطلبات، عرضها للمطبخ، تحديث الحالة
 const express = require('express');
 const router = express.Router();
-const db = require('../db');
+
+// التعديل: تغيير المسار إلى ./db لأن الملف أصبح في المجلد الرئيسي
+const db = require('./db');
 
 // توليد رقم طلب بسيط وقابل للقراءة (مثال: 250)
 function generateOrderNumber() {
@@ -29,7 +31,6 @@ function getEffectivePrice(menuItem) {
 }
 
 // إنشاء طلب جديد (من صفحة العميل بعد مسح الـ QR)
-// لو الطلب جماعي (Group Ordering) بيتبعت group_code، وكل صنف ممكن يكون ليه participant_name
 router.post('/', (req, res) => {
   const { table_number, items, notes, payment_method, group_code } = req.body;
 
@@ -37,7 +38,6 @@ router.post('/', (req, res) => {
     return res.status(400).json({ error: 'رقم الترابيزة والأصناف مطلوبين' });
   }
 
-  // نتأكد من الأسعار من قاعدة البيانات نفسها (عشان محدش يغيّر السعر من الفرونت)
   const menuStmt = db.prepare('SELECT * FROM menu_items WHERE id = ? AND available = 1');
   let total = 0;
   const validatedItems = [];
@@ -116,9 +116,8 @@ router.get('/:id/split', (req, res) => {
 });
 
 // إضافة تقييم سريع قبل الدفع (Real-time Feedback)
-// لو rating = 1 (مش راضي) بيتسجل عشان مدير الصالة يشوفه فورًا في شاشة المطبخ/الإدارة
 router.post('/:id/rating', (req, res) => {
-  const { rating, feedback } = req.body; // rating: 1=مش راضي, 2=عادي, 3=مبسوط
+  const { rating, feedback } = req.body;
   if (![1, 2, 3].includes(rating)) {
     return res.status(400).json({ error: 'تقييم غير صحيح' });
   }
